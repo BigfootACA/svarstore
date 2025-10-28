@@ -1,0 +1,39 @@
+Source: svarstore
+Section: admin
+Priority: optional
+Maintainer: BigfootACA <bigfoot@radxa.com>
+Build-Depends: debhelper-compat (= 13),
+               meson,
+               ninja-build,
+               libc6-dev
+Standards-Version: 4.6.2
+Homepage: https://github.com/BigfootACA/svarstore
+Vcs-Git: https://github.com/BigfootACA/svarstore.git
+Vcs-Browser: https://github.com/BigfootACA/svarstore
+
+Package: svarstore
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Simple Variable Store manager for Radxa devices
+ svarstore is a command-line tool for managing EFI variables in a simple
+ variable store format. It provides functionality to list, flush, reload,
+ and erase EFI variables, as well as manage boot device order.
+
+Package: libsvarstore0
+Section: libs
+Architecture: any
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Simple Variable Store library - runtime library
+ This package contains the shared library for svarstore, which provides
+ functionality for managing EFI variables in a simple variable store format.
+
+Package: libsvarstore-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: libsvarstore0 (= ${binary:Version}), ${misc:Depends}
+Description: Simple Variable Store library - development files
+ This package contains the development files (headers and static library)
+ for libsvarstore, which provides functionality for managing EFI variables
+ in a simple variable store format.

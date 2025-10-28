@@ -1,0 +1,4 @@
+usr/include/svarstore/
+usr/lib/*/libsvarstore.so
+usr/lib/*/libsvarstore.a
+usr/lib/*/pkgconfig/libsvarstore.pc
