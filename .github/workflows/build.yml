@@ -1,0 +1,81 @@
+name: Build Package
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            distro: "ubuntu24.04"
+          - arch: arm64
+            run_arch: aarch64
+            distro: "ubuntu24.04"
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 1
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      if: matrix.arch != 'amd64'
+
+    - name: Build inside ${{ matrix.arch }} container (QEMU)
+      uses: uraimo/run-on-arch-action@v3
+      if: matrix.arch != 'amd64'
+      with:
+        arch: ${{ matrix.run_arch }}
+        distro: ${{ matrix.distro }}
+        githubToken: ${{ github.token }}
+        install: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            git \
+            debhelper \
+            build-essential \
+            meson \
+            ninja-build \
+            libc6-dev \
+            python3 \
+            fakeroot \
+            devscripts
+        run: |
+          git config --global --add safe.directory $PWD
+          dpkg-buildpackage -b
+          cp ../*.deb .
+
+    - name: Build on amd64
+      if: matrix.arch == 'amd64'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          git \
+          debhelper \
+          build-essential \
+          meson \
+          ninja-build \
+          libc6-dev \
+          python3 \
+          fakeroot \
+          devscripts
+
+        dpkg-buildpackage -b
+        cp ../*.deb .
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: svarstore-${{ matrix.arch }}
+        path: |
+          *.deb
+        retention-days: 30
+        if-no-files-found: error
